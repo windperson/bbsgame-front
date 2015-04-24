@@ -1,79 +1,19 @@
 <!doctype html>
-<html><head><script src="./js/enchant.js"></script></head>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="x-ua-compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
 <body style="margin:0; padding: 0;">
-<script>
-enchant(); // initialize
-var game = new Core(320, 320);
-game.preload('./res/chara1.png', './res/icon0.png'); // preload image
-game.fps = 20;
-
-game.onload = function(){
-  // make new class for player
-  var Player = enchant.Class.create(enchant.Sprite, {
-    initialize: function(){
-      enchant.Sprite.call(this, 32, 32);
-      this.image = game.assets['./res/chara1.png'];
-      this.frame = 5;                   // set image data
-      game.rootScene.addChild(this);     // add to canvas
-    }
-  });
-
-  // make new class for apple
-  var Apple = enchant.Class.create(enchant.Sprite, {
-    initialize: function(){
-      enchant.Sprite.call(this, 16, 16);
-      this.image = game.assets['./res/icon0.png']; // set image
-      this.moveTo(16, player.y + 8);       // move to the position
-      this.tl.moveBy(320, 0, 30);        // set movement
-      this.frame = 15;                   // set image data
-      game.rootScene.addChild(this);     // add to canvas
-    }
-  });
-
-  // make new class for enemy
-  var Enemy = enchant.Class.create(enchant.Sprite, {
-    initialize: function(){
-      enchant.Sprite.call(this, 32, 32);
-      this.image = game.assets['./res/chara1.png']; // set image
-      this.moveTo(320, Math.floor(Math.random() * 320)); // set position
-      this.scaleX = -1;
-      this.tl.moveBy(-360, 0, 160);      // set movement
-      game.rootScene.addChild(this);     // canvas
-    }
-  });
-
-  var player = new Player();
-
-  // generate enemy every 60 frames
-  game.rootScene.tl.then(function() {
-    var enemy = new Enemy();
-  }).delay(30).loop();                    // wait 60 frames and loop it!
-
-  // add event listener (called when click/touch started)
-  game.rootScene.on('touchstart', function(evt){
-    player.y = evt.localY;    // set position to touch-y position
-    var apple = new Apple();
-  });
-
-  // add event listener (called when click/touch moved)
-  game.rootScene.on('touchmove', function(evt){
-    player.y = evt.localY;    // set position to touch-y position
-  });
-
-  var score = 0;
-
-  game.rootScene.on('enterframe', function(){
-    var hits = Apple.intersect(Enemy);
-    for(var i = 0, len = hits.length; i < len; i++){
-      game.rootScene.removeChild(hits[i][0]);
-      game.rootScene.removeChild(hits[i][1]);
-      score ++;
-    }
-  });
-
-};
-
-game.start(); // start your game!
-</script>
+  <div style="display: inline-block" class="center">
+    <h1 class="center" style="text-align: center"><b>BBS Game</b></h1>
+    <div id="enchant-stage" style="border: solid 3px black;" class="center"></div>
+  </div>
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.3.min.js"></script>
+  <script src="./js/lib/enchant.js"></script>
+  <script src="./js/main.js"></script>
 </body>
 </html>
