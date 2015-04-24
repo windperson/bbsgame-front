@@ -5,7 +5,12 @@ $(window).load(function(){
   game.fps = 20;
 
   var enemy_create_delay = 30;
+  var min_enemy_create_delay = 10;
+  var max_enemy_create_delay = 40;
+
   var enemy_walk_up = 0;
+  var max_enemy_walk_up = 200;
+  var min_enemy_walk_up = -10;
 
   game.onload = function(){
     // make new class for player
@@ -42,12 +47,34 @@ $(window).load(function(){
       }
     });
 
+    var game_score = 0;
     var player = new Player();
 
-    // generate enemy every 60 frames
+    // generate enemy
     game.rootScene.tl.then(function() {
       var enemy = new Enemy();
-    }).delay(enemy_create_delay).loop();                    // wait 60 frames and loop it!
+      if(game_score <= 0){
+
+        if(enemy_walk_up > min_enemy_walk_up){
+          enemy_walk_up --;
+        }
+
+        if(enemy_create_delay <= max_enemy_create_delay){
+          enemy_create_delay ++;
+        }
+      }
+      else if(game_score >= 10){
+
+        if(enemy_walk_up <= max_enemy_walk_up){
+          enemy_walk_up ++;
+        }
+
+        if(enemy_create_delay > min_enemy_create_delay){
+          enemy_create_delay --;
+        }
+      }
+
+    }).delay(enemy_create_delay).loop(); // loop it!
 
     // add event listener (called when click/touch started)
     game.rootScene.on('touchstart', function(evt){
@@ -60,7 +87,7 @@ $(window).load(function(){
       player.y = evt.localY;    // set position to touch-y position
     });
 
-    var game_score = 0;
+
 
     // ScoreLabel
     var scoreLabel = new ScoreLabel(100, 10);
@@ -72,17 +99,25 @@ $(window).load(function(){
     game.rootScene.addChild(scoreLabel);
 
     game.rootScene.on('enterframe', function(){
-      var hits = Apple.intersect(Enemy);
-      for(var i = 0, len = hits.length; i < len; i++){
-        game.rootScene.removeChild(hits[i][0]);
-        game.rootScene.removeChild(hits[i][1]);
-        game_score ++;
+
+      //crash with Enemy
+      var hurts = Player.intersect(Enemy);
+      if(hurts.length > 0){
+        for(var i = 0, len = hurts.length; i < len; i++){
+          game.rootScene.removeChild(hurts[i][1]);
+          game_score -= 2;
+        }
+        return;
       }
 
-      var hurts = Player.intersect(Enemy);
-      for(var i = 0, len = hurts.length; i < len; i++){
-        game.rootScene.removeChild(hurts[i][1]);
-        game_score -= 2;
+      //hit it with Apple
+      var hits = Apple.intersect(Enemy);
+      if(hits.length > 0){
+        for(var i = 0, len = hits.length; i < len; i++){
+          game.rootScene.removeChild(hits[i][0]);
+          game.rootScene.removeChild(hits[i][1]);
+          game_score ++;
+        }
       }
 
     });
