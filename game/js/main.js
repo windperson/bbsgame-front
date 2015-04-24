@@ -4,6 +4,9 @@ $(window).load(function(){
   game.preload('./res/chara1.png', './res/icon0.png'); // preload image
   game.fps = 20;
 
+  var enemy_create_delay = 30;
+  var enemy_walk_up = 0;
+
   game.onload = function(){
     // make new class for player
     var Player = enchant.Class.create(enchant.Sprite, {
@@ -34,7 +37,7 @@ $(window).load(function(){
         this.image = game.assets['./res/chara1.png']; // set image
         this.moveTo(320, Math.floor(Math.random() * 320)); // set position
         this.scaleX = -1;
-        this.tl.moveBy(-360, 0, 160);      // set movement
+        this.tl.moveBy(-360 - enemy_walk_up, 0, 160);      // set movement
         game.rootScene.addChild(this);     // canvas
       }
     });
@@ -44,7 +47,7 @@ $(window).load(function(){
     // generate enemy every 60 frames
     game.rootScene.tl.then(function() {
       var enemy = new Enemy();
-    }).delay(30).loop();                    // wait 60 frames and loop it!
+    }).delay(enemy_create_delay).loop();                    // wait 60 frames and loop it!
 
     // add event listener (called when click/touch started)
     game.rootScene.on('touchstart', function(evt){
@@ -57,15 +60,31 @@ $(window).load(function(){
       player.y = evt.localY;    // set position to touch-y position
     });
 
-    var score = 0;
+    var game_score = 0;
+
+    // ScoreLabel
+    var scoreLabel = new ScoreLabel(100, 10);
+    scoreLabel.on("enterframe", function() {
+      if (this.age % 30 == 0) {
+        this.score = game_score;
+      }
+    });
+    game.rootScene.addChild(scoreLabel);
 
     game.rootScene.on('enterframe', function(){
       var hits = Apple.intersect(Enemy);
       for(var i = 0, len = hits.length; i < len; i++){
         game.rootScene.removeChild(hits[i][0]);
         game.rootScene.removeChild(hits[i][1]);
-        score ++;
+        game_score ++;
       }
+
+      var hurts = Player.intersect(Enemy);
+      for(var i = 0, len = hurts.length; i < len; i++){
+        game.rootScene.removeChild(hurts[i][1]);
+        game_score -= 2;
+      }
+
     });
 
   };
